@@ -25,26 +25,32 @@
 void setupWeb() {
   webServer.on("/all", HTTP_GET, []() {
     digitalWrite(led, 0);
+    digitalWrite(led2, 0);
     String json = getFieldsJson(fields, fieldCount);
     webServer.send(200, "text/json", json);
     digitalWrite(led, 1);
+    digitalWrite(led2, 1);
   });
 
   webServer.on("/fieldValue", HTTP_GET, []() {
     digitalWrite(led, 0);
+    digitalWrite(led2, 0);
     String name = webServer.arg("name");
     String value = getFieldValue(name, fields, fieldCount);
     webServer.send(200, "text/json", value);
     digitalWrite(led, 1);
+    digitalWrite(led2, 1);
   });
 
   webServer.on("/fieldValue", HTTP_POST, []() {
     digitalWrite(led, 0);
+    digitalWrite(led2, 0);
     String name = webServer.arg("name");
     String value = webServer.arg("value");
     String newValue = setFieldValue(name, value, fields, fieldCount);
     webServer.send(200, "text/json", newValue);
     digitalWrite(led, 1);
+    digitalWrite(led2, 1);
   });
 
   webServer.serveStatic("/", SPIFFS, "/index.htm", "max-age=86400");
@@ -66,6 +72,7 @@ void handleWeb() {
     if (!webServerStarted) {
       // turn off the board's LED when connected to wifi
       digitalWrite(led, 1);
+      digitalWrite(led2, 1);
       Serial.println();
       Serial.println("WiFi connected");
       Serial.print("IP address: ");
@@ -80,6 +87,7 @@ void handleWeb() {
     EVERY_N_MILLIS(125) {
       ledState = ledState == 0 ? 1 : 0;
       digitalWrite(led, ledState);
+      digitalWrite(led2, ledState);
       Serial.print (".");
     }
   }

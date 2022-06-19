@@ -4,22 +4,24 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ESP32 FastLED Web Server by Evil Genius Labs</title>
+  <title>Etvaldo - ESP32 FastLED Web Server</title>
 
   <!-- request CSS from internet CDN -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-minicolors/2.2.4/jquery.minicolors.min.css" integrity="sha256-4wnSkPYU5B4yngAlx/rEb8LdfMah4teUth4AfhGEuaY=" crossorigin="anonymous" />
-
+  
   <!-- request CSS from the ESP32 web server -->
-  <!-- <link rel="stylesheet" href="css/bootstrap.min.css"> -->
-  <!-- <link rel="stylesheet" href="css/jquery.minicolors.min.css"> -->
+  <!--
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/jquery.minicolors.min.css">
+  -->
 
-  <!-- <link rel="stylesheet" href="/css/styles.css" /> -->
+  <link rel="stylesheet" href="/css/styles.css" />
 
-  <link rel="icon" href="images/atom196.png" />
+  <link rel="icon" href="/images/atom196.png" />
 </head>
 
-<body style="padding-bottom: 70px;">
+<body style="padding-bottom: 70px; background-color: lightgray;">
 
   <nav class="navbar navbar-default navbar-static-top" id="top" role="banner">
     <div class="container">
@@ -30,8 +32,8 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="https://www.evilgeniuslabs.org" target="_blank"><img src="https://evilgeniuslabs.org/images/atom.svg" style="width: 24px; height: 24px;" /></a>
-        <a class="navbar-brand" href="https://www.evilgeniuslabs.org" target="_blank">Evil Genius Labs</a>
+        <a class="navbar-brand" href="#"><img src="images/atom196.png" style="width: 24px; height: 24px;" /></a>
+        <a class="navbar-brand" href="#">Etvaldo</a>
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse-1">
         <ul class="nav navbar-nav">
@@ -39,13 +41,6 @@
           <!-- <li><a href="/simple.htm" target="_blank" title="Simple Mode">Simple</a></li>
           <li><a href="/edit.htm" target="_blank" title="Edit Files">Files</a></li>
           <li><a href="/update" target="_blank" title="Update Firmware">Firmware</a></li> -->
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li>
-            <a href="https://github.com/jasoncoon/esp32-fastled-webserver">
-              <img style="height: 16px;" src="https://assets-cdn.github.com/favicon.ico" />
-            </a>
-          </li>
         </ul>
       </div>
     </div>

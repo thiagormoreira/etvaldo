@@ -27,14 +27,21 @@
 
 void rainbow()
 {
+  uint8_t deltaHue= 10;
+  uint8_t thisHue = beat8(speed,255); 
+  fill_rainbow(leds, NUM_LEDS, thisHue, deltaHue); 
+  fill_rainbow( leds2, NUM_LEDS_2, thisHue, deltaHue);
+
   // FastLED's built-in rainbow generator
-  fill_rainbow( leds, NUM_LEDS, gHue, speed);
+  // fill_rainbow( leds, NUM_LEDS, gHue, speed);
+  // fill_rainbow( leds2, NUM_LEDS_2, gHue, speed);
 }
 
 void addGlitter( fract8 chanceOfGlitter)
 {
   if ( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::White;
+    leds2[ random16(NUM_LEDS_2) ] += CRGB::White;
   }
 }
 
@@ -51,6 +58,10 @@ void confetti()
   fadeToBlackBy( leds, NUM_LEDS, 10);
   int pos = random16(NUM_LEDS);
   leds[pos] += CHSV( gHue + random8(64), 200, 255);
+
+  fadeToBlackBy( leds2, NUM_LEDS_2, 10);
+  int pos2 = random16(NUM_LEDS_2);
+  leds2[pos2] += CHSV( gHue + random8(64), 200, 255);
 }
 
 void sinelon()
@@ -66,6 +77,17 @@ void sinelon()
     fill_solid( leds + prevpos, (pos - prevpos) + 1, color);
   }
   prevpos = pos;
+
+  fadeToBlackBy( leds2, NUM_LEDS_2, 20);
+  int pos2 = beatsin16(speed, 0, NUM_LEDS_2 - 1);
+  static int prevpos2 = 0;
+  CRGB color2 = ColorFromPalette(palettes[currentPaletteIndex], gHue, 255);
+  if ( pos2 < prevpos2 ) {
+    fill_solid( leds2 + pos2, (prevpos2 - pos2) + 1, color2);
+  } else {
+    fill_solid( leds2 + prevpos2, (pos2 - prevpos2) + 1, color2);
+  }
+  prevpos2 = pos2;
 }
 
 void bpm()
@@ -75,6 +97,10 @@ void bpm()
   CRGBPalette16 palette = palettes[currentPaletteIndex];
   for ( int i = 0; i < NUM_LEDS; i++) {
     leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
+  }
+  
+  for ( int j = 0; j < NUM_LEDS_2; j++) {
+    leds2[j] = ColorFromPalette(palette, gHue + (j * 2), beat - gHue + (j * 10));
   }
 }
 
@@ -86,23 +112,33 @@ void juggle() {
     leds[beatsin16( i + speed, 0, NUM_LEDS - 1 )] |= CHSV(dothue, 200, 255);
     dothue += 32;
   }
+
+  fadeToBlackBy( leds2, NUM_LEDS_2, 20);
+  byte dothue2 = 0;
+  for ( int j = 0; j < 8; j++) {
+    leds2[beatsin16( j + speed, 0, NUM_LEDS_2 - 1 )] |= CHSV(dothue2, 200, 255);
+    dothue2 += 32;
+  }
 }
 
 void showSolidColor()
 {
   fill_solid(leds, NUM_LEDS, solidColor);
+  fill_solid(leds2, NUM_LEDS_2, solidColor);
 }
 
 // based on FastLED example Fire2012WithPalette: https://github.com/FastLED/FastLED/blob/master/examples/Fire2012WithPalette/Fire2012WithPalette.ino
 void heatMap(CRGBPalette16 palette, bool up)
 {
   fill_solid(leds, NUM_LEDS, CRGB::Black);
+  fill_solid(leds2, NUM_LEDS_2, CRGB::Black);
 
   // Add entropy to random number generator; we use a lot of it.
   random16_add_entropy(random(256));
 
   // Array of temperature readings at each simulation cell
   static byte heat[NUM_LEDS];
+  static byte heat2[NUM_LEDS_2];
 
   byte colorindex;
 
@@ -110,16 +146,26 @@ void heatMap(CRGBPalette16 palette, bool up)
   for ( uint16_t i = 0; i < NUM_LEDS; i++) {
     heat[i] = qsub8( heat[i],  random8(0, ((cooling * 10) / NUM_LEDS) + 2));
   }
+  for ( uint16_t i = 0; i < NUM_LEDS_2; i++) {
+    heat2[i] = qsub8( heat[i],  random8(0, ((cooling * 10) / NUM_LEDS) + 2));
+  }
 
   // Step 2.  Heat from each cell drifts 'up' and diffuses a little
   for ( uint16_t k = NUM_LEDS - 1; k >= 2; k--) {
     heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2] ) / 3;
+  }
+  for ( uint16_t k = NUM_LEDS_2 - 1; k >= 2; k--) {
+    heat2[k] = (heat[k - 1] + heat2[k - 2] + heat2[k - 2] ) / 3;
   }
 
   // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
   if ( random8() < sparking ) {
     int y = random8(7);
     heat[y] = qadd8( heat[y], random8(160, 255) );
+  }
+  if ( random8() < sparking ) {
+    int y = random8(7);
+    heat2[y] = qadd8( heat2[y], random8(160, 255) );
   }
 
   // Step 4.  Map from heat cells to LED colors
@@ -135,6 +181,21 @@ void heatMap(CRGBPalette16 palette, bool up)
     }
     else {
       leds[(NUM_LEDS - 1) - j] = color;
+    }
+  }
+
+  for ( uint16_t j = 0; j < NUM_LEDS_2; j++) {
+    // Scale the heat value from 0-255 down to 0-240
+    // for best results with color palettes.
+    colorindex = scale8(heat2[j], 190);
+
+    CRGB color2 = ColorFromPalette(palette, colorindex);
+
+    if (up) {
+      leds2[j] = color2;
+    }
+    else {
+      leds2[(NUM_LEDS_2 - 1) - j] = color2;
     }
   }
 }
@@ -190,6 +251,25 @@ void pride()
     pixelnumber = (NUM_LEDS - 1) - pixelnumber;
 
     nblend( leds[pixelnumber], newcolor, 64);
+  }
+  
+  for ( uint16_t i = 0 ; i < NUM_LEDS_2; i++) {
+    hue16 += hueinc16;
+    uint8_t hue8 = hue16 / 256;
+
+    brightnesstheta16  += brightnessthetainc16;
+    uint16_t b16 = sin16( brightnesstheta16  ) + 32768;
+
+    uint16_t bri16 = (uint32_t)((uint32_t)b16 * (uint32_t)b16) / 65536;
+    uint8_t bri8 = (uint32_t)(((uint32_t)bri16) * brightdepth) / 65536;
+    bri8 += (255 - brightdepth);
+
+    CRGB newcolor = CHSV( hue8, sat8, bri8);
+
+    uint16_t pixelnumber = i;
+    pixelnumber = (NUM_LEDS_2 - 1) - pixelnumber;
+
+    nblend( leds2[pixelnumber], newcolor, 64);
   }
 }
 
@@ -250,6 +330,7 @@ void colorwaves( CRGB* ledarray, uint16_t numleds, CRGBPalette16& palette)
 void colorWaves()
 {
   colorwaves(leds, NUM_LEDS, currentPalette);
+  colorwaves(leds2, NUM_LEDS_2, currentPalette);
 }
 
 typedef void (*Pattern)();

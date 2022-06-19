@@ -36,8 +36,9 @@
 WebServer webServer(80);
 
 const int led = 5;
+const int led2 = 13;
 
-uint8_t autoplay = 0;
+uint8_t autoplay = 1;
 uint8_t autoplayDuration = 10;
 unsigned long autoPlayTimeout = 0;
 
@@ -46,7 +47,7 @@ uint8_t currentPatternIndex = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 uint8_t power = 1;
-uint8_t brightness = 8;
+uint8_t brightness = 10;
 
 uint8_t speed = 30;
 
@@ -69,14 +70,18 @@ unsigned long paletteTimeout = 0;
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
-#define DATA_PIN    18
+#define DATA_PIN    5
+#define DATA_PIN_2    13
 //#define CLK_PIN   4
-#define LED_TYPE    SK6812
+#define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 #define NUM_STRIPS  1
-#define NUM_LEDS_PER_STRIP 64
+#define NUM_LEDS_PER_STRIP 16
+#define NUM_LEDS_PER_STRIP_2 12
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
+#define NUM_LEDS_2 NUM_LEDS_PER_STRIP_2 * NUM_STRIPS
 CRGB leds[NUM_LEDS];
+CRGB leds2[NUM_LEDS_2];
 
 #define MILLI_AMPS         1600 // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
 #define FRAMES_PER_SECOND  120
@@ -88,6 +93,7 @@ CRGB leds[NUM_LEDS];
 
 #include "secrets.h"
 #include "web.h"
+// #include "bluetooth.h"
 
 // wifi ssid and password should be added to a file in the sketch named secrets.h
 // the secrets.h file should be added to the .gitignore file and never committed or
@@ -129,25 +135,30 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
 void setup() {
   pinMode(led, OUTPUT);
   digitalWrite(led, 1);
+  pinMode(led2, OUTPUT);
+  digitalWrite(led2, 1);
 
   //  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
 
-  SPIFFS.begin();
+  SPIFFS.begin(true);
+  
   listDir(SPIFFS, "/", 1);
 
-//  loadFieldsFromEEPROM(fields, fieldCount);
+  loadFieldsFromEEPROM(fields, fieldCount);
 
-  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_MODE_STA);
   Serial.printf("Connecting to %s\n", ssid);
   if (String(WiFi.SSID()) != String(ssid)) {
     WiFi.begin(ssid, password);
   }
 
+  // setupBluetooth();
   setupWeb();
 
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds2, NUM_LEDS_2).setCorrection(TypicalLEDStrip);
 
   // four-wire LEDs (APA102, DotStar)
   // FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -163,6 +174,7 @@ void setup() {
   // FastLED.addLeds<LED_TYPE, SCL, COLOR_ORDER>(leds, 7 * NUM_LEDS_PER_STRIP, NUM_LEDS_PER_STRIP).setCorrection(TypicalLEDStrip);
 
   FastLED.setMaxPowerInVoltsAndMilliamps(5, MILLI_AMPS);
+  FastLED.setMaxPowerInVoltsAndMilliamps(13, MILLI_AMPS);
   
   // set master brightness control
   FastLED.setBrightness(brightness);
@@ -173,9 +185,11 @@ void setup() {
 void loop()
 {
   handleWeb();
+  // handleBluetooth();
 
   if (power == 0) {
     fill_solid(leds, NUM_LEDS, CRGB::Black);
+    fill_solid(leds2, NUM_LEDS_2, CRGB::Black);
   }
   else {
     // Call the current pattern function once, updating the 'leds' array
