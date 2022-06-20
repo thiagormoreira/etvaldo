@@ -35,6 +35,8 @@ void rainbow()
   // FastLED's built-in rainbow generator
   // fill_rainbow( leds, NUM_LEDS, gHue, speed);
   // fill_rainbow( leds2, NUM_LEDS_2, gHue, speed);
+
+  //WebSerial.println("Rainbow");
 }
 
 void addGlitter( fract8 chanceOfGlitter)
@@ -50,6 +52,8 @@ void rainbowWithGlitter()
   // built-in FastLED rainbow, plus some random sparkly glitter
   rainbow();
   addGlitter(80);
+
+  //WebSerial.println("RainbowWithGlitter");
 }
 
 void confetti()
@@ -62,6 +66,8 @@ void confetti()
   fadeToBlackBy( leds2, NUM_LEDS_2, 10);
   int pos2 = random16(NUM_LEDS_2);
   leds2[pos2] += CHSV( gHue + random8(64), 200, 255);
+
+  //WebSerial.println("Confetti");
 }
 
 void sinelon()
@@ -88,6 +94,8 @@ void sinelon()
     fill_solid( leds2 + prevpos2, (pos2 - prevpos2) + 1, color2);
   }
   prevpos2 = pos2;
+
+  //WebSerial.println("Sinelon");
 }
 
 void bpm()
@@ -102,6 +110,8 @@ void bpm()
   for ( int j = 0; j < NUM_LEDS_2; j++) {
     leds2[j] = ColorFromPalette(palette, gHue + (j * 2), beat - gHue + (j * 10));
   }
+
+  //WebSerial.println("BPM");
 }
 
 void juggle() {
@@ -119,12 +129,16 @@ void juggle() {
     leds2[beatsin16( j + speed, 0, NUM_LEDS_2 - 1 )] |= CHSV(dothue2, 200, 255);
     dothue2 += 32;
   }
+
+  //WebSerial.println("Juggle");
 }
 
 void showSolidColor()
 {
   fill_solid(leds, NUM_LEDS, solidColor);
   fill_solid(leds2, NUM_LEDS_2, solidColor);
+
+  //WebSerial.println("Solid Color");
 }
 
 // based on FastLED example Fire2012WithPalette: https://github.com/FastLED/FastLED/blob/master/examples/Fire2012WithPalette/Fire2012WithPalette.ino
@@ -203,11 +217,15 @@ void heatMap(CRGBPalette16 palette, bool up)
 void fire()
 {
   heatMap(HeatColors_p, true);
+
+  //WebSerial.println("Fire");
 }
 
 void water()
 {
   heatMap(IceColors_p, false);
+
+  //WebSerial.println("Water");
 }
 
 // Pride2015 by Mark Kriegsman: https://gist.github.com/kriegsman/964de772d64c502760e5
@@ -271,6 +289,8 @@ void pride()
 
     nblend( leds2[pixelnumber], newcolor, 64);
   }
+
+  //WebSerial.println("Pride");
 }
 
 // ColorWavesWithPalettes by Mark Kriegsman: https://gist.github.com/kriegsman/8281905786e8b2632aeb
@@ -331,6 +351,8 @@ void colorWaves()
 {
   colorwaves(leds, NUM_LEDS, currentPalette);
   colorwaves(leds2, NUM_LEDS_2, currentPalette);
+
+  //WebSerial.println("ColorWaves");
 }
 
 typedef void (*Pattern)();

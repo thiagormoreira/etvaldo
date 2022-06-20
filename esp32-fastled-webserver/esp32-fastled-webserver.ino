@@ -22,18 +22,22 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <Arduino.h>
+
 #include <FastLED.h>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <FS.h>
 #include <SPIFFS.h>
 #include <EEPROM.h>
-
-#if defined(FASTLED_VERSION) && (FASTLED_VERSION < 3003000)
-#warning "Requires FastLED 3.3 or later; check github for latest code."
-#endif
+#include <ElegantOTA.h>
+// #include <AsyncTCP.h>
+// #include <ESPAsyncWebServer.h>
+// #include <AsyncElegantOTA.h>
+// #include <WebSerial.h>
 
 WebServer webServer(80);
+//AsyncWebServer asyncWebServer(81);
 
 const int led = 5;
 const int led2 = 13;
@@ -80,6 +84,7 @@ unsigned long paletteTimeout = 0;
 #define NUM_LEDS_PER_STRIP_2 12
 #define NUM_LEDS NUM_LEDS_PER_STRIP * NUM_STRIPS
 #define NUM_LEDS_2 NUM_LEDS_PER_STRIP_2 * NUM_STRIPS
+
 CRGB leds[NUM_LEDS];
 CRGB leds2[NUM_LEDS_2];
 
@@ -92,8 +97,9 @@ CRGB leds2[NUM_LEDS_2];
 #include "fields.h"
 
 #include "secrets.h"
+//#include "webserial.h"
 #include "web.h"
-// #include "bluetooth.h"
+//#include "bluetooth.h"
 
 // wifi ssid and password should be added to a file in the sketch named secrets.h
 // the secrets.h file should be added to the .gitignore file and never committed or
@@ -133,12 +139,13 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
 }
 
 void setup() {
+
   pinMode(led, OUTPUT);
   digitalWrite(led, 1);
   pinMode(led2, OUTPUT);
   digitalWrite(led2, 1);
 
-  //  delay(3000); // 3 second delay for recovery
+  delay(3000); // 3 second delay for recovery
   Serial.begin(115200);
 
   SPIFFS.begin(true);
@@ -152,9 +159,14 @@ void setup() {
   if (String(WiFi.SSID()) != String(ssid)) {
     WiFi.begin(ssid, password);
   }
-
+  
   // setupBluetooth();
+  // AsyncElegantOTA.begin(&asyncWebServer); // Start AsyncElegantOTA
+  ElegantOTA.begin(&webServer); // Start AsyncElegantOTA
+  //setupWebSerial();
   setupWeb();
+
+  //asyncWebServer.begin();
 
   // three-wire LEDs (WS2811, WS2812, NeoPixel)
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
@@ -185,7 +197,7 @@ void setup() {
 void loop()
 {
   handleWeb();
-  // handleBluetooth();
+  //handleBluetooth();
 
   if (power == 0) {
     fill_solid(leds, NUM_LEDS, CRGB::Black);

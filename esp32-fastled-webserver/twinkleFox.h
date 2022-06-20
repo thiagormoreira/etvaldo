@@ -259,4 +259,6 @@ void drawTwinkles()
       pixel = bg;
     }
   }
+
+  //WebSerial.println("Twinkles");
 }
