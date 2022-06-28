@@ -99,13 +99,7 @@ CRGB leds2[NUM_LEDS_2];
 #include "secrets.h"
 //#include "webserial.h"
 #include "web.h"
-//#include "bluetooth.h"
-
-// wifi ssid and password should be added to a file in the sketch named secrets.h
-// the secrets.h file should be added to the .gitignore file and never committed or
-// pushed to public source control (GitHub).
-// const char* ssid = "........";
-// const char* password = "........";
+#include "bluetooth.h"
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   Serial.printf("Listing directory: %s\n", dirname);
@@ -160,7 +154,7 @@ void setup() {
     WiFi.begin(ssid, password);
   }
   
-  // setupBluetooth();
+  setupBluetooth();
   // AsyncElegantOTA.begin(&asyncWebServer); // Start AsyncElegantOTA
   ElegantOTA.begin(&webServer); // Start AsyncElegantOTA
   //setupWebSerial();
